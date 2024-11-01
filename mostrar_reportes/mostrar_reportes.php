@@ -1,7 +1,7 @@
 <?php
 $server = "localhost";
 $user = "root";
-$pass = "root";
+$pass = "";
 $db = "BrightAcademy";
 
 $conexion = new mysqli($server, $user, $pass, $db);
@@ -10,95 +10,53 @@ if ($conexion->connect_errno) {
     die("Conexión fallida: " . $conexion->connect_error);
 }
 
-// Parámetros para la paginación
-$estudiantesPorPagina = 20;
-$page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
-$offset = ($page - 1) * $estudiantesPorPagina;
+// Consulta para obtener los datos de estudiantes
+$sql = "SELECT carnet, nombre_estudiante, apellido_estudiante, nota1, nota2, nota3 FROM estudiantes_1";
+$result = $conexion->query($sql);
 
-// Consulta para contar el total de estudiantes
-$countQuery = "SELECT COUNT(*) as total FROM estudiantes_1";
-$countResult = $conexion->query($countQuery);
-$totalEstudiantes = $countResult->fetch_assoc()['total'];
-$totalPaginas = ceil($totalEstudiantes / $estudiantesPorPagina);
-
-echo '<div class="total-students">Total de estudiantes: ' . $totalEstudiantes . '</div>';
-
-$query = "
-    SELECT 
-        ROUND(AVG(CAST(promedio_estudiante AS DECIMAL(5,2))), 2) AS promedio_promedios,
-        ROUND(AVG(CAST(porcentaje_progreso AS DECIMAL(5,2))), 2) AS promedio_progresos
-    FROM 
-        estudiantes_1";
-$result = $conexion->query($query);
-
-if ($result) {
-    $row = $result->fetch_assoc();
-    echo '<div style="padding: 20px; font-family: Arial, sans-serif; color: #3CA6A6;">';
-    echo '<h2 style="font-size: 24px; color: #024959;">Resumen de Estudiantes</h2>';
-    echo '<p style="font-size: 18px; margin: 10px 0; text-align: center;">Promedio de Notas: <span style="font-weight: bold; color: #000;">' . $row['promedio_promedios'] . '</span></p>';
-    echo '<p style="font-size: 18px; margin: 10px 0; text-align: center;">Promedio de Progresos: <span style="font-weight: bold; color: #000;">' . $row['promedio_progresos'] . '%</span></p>';
-    echo '</div>';
-}
-
-echo '<style>
-    .pagination {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 20px;
-    }
-    .button-1 {
-        padding: 10px 20px;
-        margin-top: 1em;
-        background-color: var(--color-boton);
-        color: var(--color-primario);
-        text-decoration: none;
-        border-radius: 5px;
-        font-size: 1em;
-        font-weight: bold;
-        transition: background-color 0.3s ease;
-    }
-    .button-1:hover {
-        background-color: var(--color-hover);
-    }
-</style>';
-
-// Consulta para obtener los detalles de los estudiantes con límite y desplazamiento
-$query = "SELECT nombre_estudiante, apellido_estudiante, promedio_estudiante, porcentaje_progreso 
-          FROM estudiantes_1 
-          LIMIT $estudiantesPorPagina OFFSET $offset";
-$result = $conexion->query($query);
+// Variables para calcular el promedio
+$totalNotas = 0;
+$totalEstudiantes = 0;
 
 if ($result->num_rows > 0) {
-    // Iterar sobre los resultados de la consulta
+    // Iniciar tabla HTML
+    echo "<table class='table table-light table-striped'>";
+    echo "<thead>";
+    echo "<tr>";
+    echo "<th scope='col'>Carnet</th>";
+    echo "<th scope='col'>Nombre Completo</th>";
+    echo "<th scope='col'>Nota 1</th>";
+    echo "<th scope='col'>Nota 2</th>";
+    echo "<th scope='col'>Nota 3</th>";
+    echo "</tr>";
+    echo "</thead>";
+    echo "<tbody>";
+
+    // Recorrer los resultados y construir las filas de la tabla
     while ($row = $result->fetch_assoc()) {
-        $nombreCompleto = $row['nombre_estudiante'] . ' ' . $row['apellido_estudiante'];
-        $promedio = $row['promedio_estudiante'];
-        $progreso = $row['porcentaje_progreso'];
+        echo "<tr>";
+        echo "<td>" . $row["carnet"] . "</td>";
+        echo "<td>" . $row["nombre_estudiante"] . " " . $row["apellido_estudiante"] . "</td>";
+        echo "<td>" . $row["nota1"] . "</td>";
+        echo "<td>" . $row["nota2"] . "</td>";
+        echo "<td>" . $row["nota3"] . "</td>";
+        echo "</tr>";
 
-        echo '<div class="student-report">';
-        echo '<div class="student-info">';
-        echo '<img src="../img/perfil.png" alt="alumno">';
-        echo '<h3>' . $nombreCompleto . '</h3>';
-        echo '</div>';
-        echo '<div class="student-average">Promedio: <span>' . $promedio . '</span></div>';
-        echo '<div class="student-progress">Progreso: <span>' . $progreso . '</span></div>';
-        echo '</div>';
+        // Sumar las notas para calcular el promedio
+        $totalNotas += (float)$row["nota1"] + (float)$row["nota2"] + (float)$row["nota3"];
+        $totalEstudiantes += 1; // Contar cada estudiante una vez
     }
+
+    echo "</tbody>";
+    echo "</table>";
+
+    // Calcular y mostrar el promedio
+    $numeroDeNotas = $totalEstudiantes * 3; // Suponiendo 3 notas por estudiante
+    $promedio = ($numeroDeNotas > 0) ? ($totalNotas / $numeroDeNotas) : 0;
+    echo "<h2 id='promedio'>Promedio de Calificaciones: " . number_format($promedio, 2) . "</h2>";
 } else {
-    echo '<div class="no-data">No hay datos disponibles.</div>';
+    echo "No se encontraron estudiantes.";
 }
 
-// Navegación de la paginación
-echo '<div class="pagination">';
-if ($page > 1) {
-    echo '<a class="button-1" href="?page=' . ($page - 1) . '">Anterior</a>';
-}
-if ($page < $totalPaginas) {
-    echo '<a class="button-1" href="?page=' . ($page + 1) . '">Siguiente</a>';
-}
-echo '</div>';
-
-
-// Cerrar conexión
 $conexion->close();
 ?>
