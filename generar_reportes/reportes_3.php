@@ -28,6 +28,9 @@
             <h1>Reporte de rendimiento</h1>
             <h1>Base de Datos I</h1>
         </div>
+
+        <a href="../generar_pdf/generar_pdf_3.php" class="btn btn-primary">Descargar Informe en PDF</a>
+
         <div id="graficos">
             <article>
                 <div class="container-graficos">
