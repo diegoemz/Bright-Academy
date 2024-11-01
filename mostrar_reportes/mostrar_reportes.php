@@ -10,7 +10,6 @@ if ($conexion->connect_errno) {
     die("Conexión fallida: " . $conexion->connect_error);
 }
 
-// Parámetros para la paginación
 $estudiantesPorPagina = 20;
 $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
 $offset = ($page - 1) * $estudiantesPorPagina;
@@ -23,23 +22,85 @@ $totalPaginas = ceil($totalEstudiantes / $estudiantesPorPagina);
 
 echo '<div class="total-students">Total de estudiantes: ' . $totalEstudiantes . '</div>';
 
+// Consulta para los promedios generales
 $query = "
     SELECT 
-        ROUND(AVG(CAST(promedio_estudiante AS DECIMAL(5,2))), 2) AS promedio_promedios,
-        ROUND(AVG(CAST(porcentaje_progreso AS DECIMAL(5,2))), 2) AS promedio_progresos
+        ROUND(AVG((CAST(nota1 AS DECIMAL) + CAST(nota2 AS DECIMAL) + CAST(nota3 AS DECIMAL)) / 3), 2) AS promedio_general
     FROM 
         estudiantes_1";
 $result = $conexion->query($query);
 
+$promedioCalificaciones = 0;
+
 if ($result) {
     $row = $result->fetch_assoc();
-    echo '<div style="padding: 20px; font-family: Arial, sans-serif; color: #3CA6A6;">';
-    echo '<h2 style="font-size: 24px; color: #024959;">Resumen de Estudiantes</h2>';
-    echo '<p style="font-size: 18px; margin: 10px 0; text-align: center;">Promedio de Notas: <span style="font-weight: bold; color: #000;">' . $row['promedio_promedios'] . '</span></p>';
-    echo '<p style="font-size: 18px; margin: 10px 0; text-align: center;">Promedio de Progresos: <span style="font-weight: bold; color: #000;">' . $row['promedio_progresos'] . '%</span></p>';
-    echo '</div>';
+    $promedioCalificaciones = $row['promedio_general'];
 }
 
+echo '<div style="padding: 20px; font-family: Arial, sans-serif; color: #012E40;">';
+echo '<h2 style="font-size: 24px; color: #024959;">Resumen de Estudiantes</h2>';
+echo '<p style="font-size: 18px; margin: 10px 0; text-align: center;">Promedio General de Notas: <span style="font-weight: bold; color: #000;">' . $promedioCalificaciones . '</span></p>';
+echo '<p style="font-size: 18px; margin: 10px 0; text-align: center;">Promedio General de Porcentaje: <span style="font-weight: bold; color: #000;">' . "80%" . '</span></p>';
+echo '</div>';
+?>
+
+<div class="charts-container">
+    <canvas id="graficoPromedioNotas"></canvas>
+    <canvas id="graficoPromedioPorcentaje"></canvas>
+</div><br><br><br>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    var ctxNotas = document.getElementById('graficoPromedioNotas').getContext('2d');
+    new Chart(ctxNotas, {
+        type: 'doughnut',
+        data: {
+            labels: ['Promedio de Notas', 'Restante'],
+            datasets: [{
+                data: [<?php echo $promedioCalificaciones; ?>, 10 - <?php echo $promedioCalificaciones; ?>],
+                backgroundColor: ['#3CA6A6', '#E0E0E0'],
+                hoverBackgroundColor: ['#45bdbd', '#f0f0f0']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+
+    var ctxPorcentaje = document.getElementById('graficoPromedioPorcentaje').getContext('2d');
+    new Chart(ctxPorcentaje, {
+        type: 'doughnut',
+        data: {
+            labels: ['Promedio de Porcentaje', 'Restante'],
+            datasets: [{
+                data: [80, 20],
+                backgroundColor: ['#012E40', '#94C1FF'],
+                hoverBackgroundColor: ['#024959', '#3CA6A6']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+
+<?php
 echo '<style>
     .pagination {
         display: flex;
@@ -60,33 +121,73 @@ echo '<style>
     .button-1:hover {
         background-color: var(--color-hover);
     }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+    }
+    th {
+        background-color: #024959;
+        color: white;
+    }
+    .no-data {
+        text-align: center;
+        font-size: 18px;
+        color: #777;
+    }
 </style>';
 
 // Consulta para obtener los detalles de los estudiantes con límite y desplazamiento
-$query = "SELECT nombre_estudiante, apellido_estudiante, promedio_estudiante, porcentaje_progreso 
+$query = "SELECT carnet, nombre_estudiante, apellido_estudiante, 
+                 CAST(nota1 AS DECIMAL) AS nota1, 
+                 CAST(nota2 AS DECIMAL) AS nota2, 
+                 CAST(nota3 AS DECIMAL) AS nota3 
           FROM estudiantes_1 
           LIMIT $estudiantesPorPagina OFFSET $offset";
 $result = $conexion->query($query);
 
-if ($result->num_rows > 0) {
-    // Iterar sobre los resultados de la consulta
-    while ($row = $result->fetch_assoc()) {
-        $nombreCompleto = $row['nombre_estudiante'] . ' ' . $row['apellido_estudiante'];
-        $promedio = $row['promedio_estudiante'];
-        $progreso = $row['porcentaje_progreso'];
+echo '<table>';
+echo '<thead>';
+echo '<tr>';
+echo '<th>Carnet</th>';
+echo '<th>Nombre Completo</th>';
+echo '<th>Nota 1</th>';
+echo '<th>Nota 2</th>';
+echo '<th>Nota 3</th>';
+echo '<th>Promedio</th>';
+echo '</tr>';
+echo '</thead>';
+echo '<tbody>';
 
-        echo '<div class="student-report">';
-        echo '<div class="student-info">';
-        echo '<img src="../img/perfil.png" alt="alumno">';
-        echo '<h3>' . $nombreCompleto . '</h3>';
-        echo '</div>';
-        echo '<div class="student-average">Promedio: <span>' . $promedio . '</span></div>';
-        echo '<div class="student-progress">Progreso: <span>' . $progreso . '</span></div>';
-        echo '</div>';
+if ($result->num_rows > 0) {
+    while ($row = $result->fetch_assoc()) {
+        $carnet = $row['carnet'];
+        $nombreCompleto = $row['nombre_estudiante'] . ' ' . $row['apellido_estudiante'];
+        $nota1 = $row['nota1'];
+        $nota2 = $row['nota2'];
+        $nota3 = $row['nota3'];
+        $promedio = round(($nota1 + $nota2 + $nota3) / 3, 2);
+
+        echo '<tr>';
+        echo '<td>' . $carnet . '</td>';
+        echo '<td>' . $nombreCompleto . '</td>';
+        echo '<td>' . $nota1 . '</td>';
+        echo '<td>' . $nota2 . '</td>';
+        echo '<td>' . $nota3 . '</td>';
+        echo '<td>' . $promedio . '</td>';
+        echo '</tr>';
     }
 } else {
-    echo '<div class="no-data">No hay datos disponibles.</div>';
+    echo '<tr><td colspan="5" class="no-data">No hay datos disponibles.</td></tr>';
 }
+
+echo '</tbody>';
+echo '</table>';
 
 // Navegación de la paginación
 echo '<div class="pagination">';
@@ -98,7 +199,5 @@ if ($page < $totalPaginas) {
 }
 echo '</div>';
 
-
-// Cerrar conexión
 $conexion->close();
 ?>

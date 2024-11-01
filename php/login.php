@@ -39,7 +39,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION['usuario'] = $usuario;
         header("Location: ../cursos_admin.php");
     } else {
-        header("Location: ../index.html?error=credenciales");
+        echo "<script>alert('Nombre de usuario o contraseña incorrectos');</script>";
+        echo "<script>window.location.href = '../index.html';</script>";
     }
     exit();
 }

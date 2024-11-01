@@ -25,6 +25,11 @@
     <section class="cursos">
         <br><br><br>
         <h2>Reporte de Cursos - Requerimientos</h2>
+        <div style="text-align: center;">
+            <a href="../generar_pdf/generar_pdf_2.php" class="button" style="display: inline-block; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; text-align: center;">
+                Descargar Informe en PDF
+            </a>
+        </div>
         <div class="report-container">
             <?php include('../mostrar_reportes/mostrar_reportes_2.php'); ?>
         </div>
