@@ -1,6 +1,22 @@
 <?php
-require('../fpdf.php'); // Asegúrate de que la ruta a FPDF sea correcta
+require_once('../fpdf.php'); // Asegúrate de que la ruta sea correcta
 
+// Crear nuevo PDF
+$pdf = new TCPDF();
+
+// Configurar el PDF
+$pdf->SetCreator(PDF_CREATOR);
+$pdf->SetAuthor('Tu Nombre');
+$pdf->SetTitle('Informe de Estudiantes');
+$pdf->SetSubject('Informe de Notas');
+
+// Añadir una página
+$pdf->AddPage();
+
+// Establecer fuente (incluyendo soporte para UTF-8)
+$pdf->SetFont('helvetica', '', 12);
+
+// Conectar a la base de datos
 $server = "localhost";
 $user = "root";
 $pass = "";
@@ -16,51 +32,49 @@ if ($conexion->connect_errno) {
 $sql = "SELECT carnet, nombre_estudiante, apellido_estudiante, nota1, nota2, nota3 FROM estudiantes_1";
 $result = $conexion->query($sql);
 
-// Crear un nuevo PDF
-$pdf = new FPDF();
-$pdf->AddPage();
-$pdf->SetFont('Arial', 'B', 16);
-$pdf->Cell(0, 10, 'Informe de Estudiantes', 0, 1, 'C');
-
 // Encabezados de la tabla
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Cell(30, 10, 'Carnet', 1);
-$pdf->Cell(60, 10, 'Nombre Completo', 1);
-$pdf->Cell(30, 10, 'Nota 1', 1);
-$pdf->Cell(30, 10, 'Nota 2', 1);
-$pdf->Cell(30, 10, 'Nota 3', 1);
-$pdf->Ln();
+$html = '<table border="1" cellpadding="5">
+<tr>
+    <th>Carnet</th>
+    <th>Nombre Completo</th>
+    <th>Nota 1</th>
+    <th>Nota 2</th>
+    <th>Nota 3</th>
+</tr>';
 
-// Variables para calcular el promedio
 $totalNotas = 0;
 $totalEstudiantes = 0;
 
 if ($result->num_rows > 0) {
-    // Recorrer los resultados y agregar las filas al PDF
+    // Recorrer los resultados y agregar las filas al HTML
     while ($row = $result->fetch_assoc()) {
-        $pdf->Cell(30, 10, $row["carnet"], 1);
-        $pdf->Cell(60, 10, $row["nombre_estudiante"] . " " . $row["apellido_estudiante"], 1);
-        $pdf->Cell(30, 10, $row["nota1"], 1);
-        $pdf->Cell(30, 10, $row["nota2"], 1);
-        $pdf->Cell(30, 10, $row["nota3"], 1);
-        $pdf->Ln();
+        $html .= '<tr>
+            <td>' . $row["carnet"] . '</td>
+            <td>' . $row["nombre_estudiante"] . ' ' . $row["apellido_estudiante"] . '</td>
+            <td>' . $row["nota1"] . '</td>
+            <td>' . $row["nota2"] . '</td>
+            <td>' . $row["nota3"] . '</td>
+        </tr>';
 
         // Sumar las notas para calcular el promedio
         $totalNotas += (float)$row["nota1"] + (float)$row["nota2"] + (float)$row["nota3"];
-        $totalEstudiantes += 1; // Contar cada estudiante una vez
+        $totalEstudiantes += 3; // Contar cada nota
     }
 }
 
+// Cerrar la tabla HTML
+$html .= '</table>';
+
 // Calcular el promedio
-$numeroDeNotas = $totalEstudiantes * 3; // Suponiendo 3 notas por estudiante
-$promedio = ($numeroDeNotas > 0) ? ($totalNotas / $numeroDeNotas) : 0;
+$promedio = ($totalEstudiantes > 0) ? ($totalNotas / $totalEstudiantes) : 0;
 
 // Mostrar el promedio en el PDF
-$pdf->SetFont('Arial', 'B', 12);
-$pdf->Ln(10);
-$pdf->Cell(0, 10, 'Promedio de Calificaciones: ' . number_format($promedio, 2), 0, 1, 'C');
+$html .= '<h2>Promedio de Calificaciones: ' . number_format($promedio, 2) . '</h2>';
+
+// Imprimir el HTML en el PDF
+$pdf->writeHTML($html, true, false, true, false, '');
 
 // Salida del PDF
-$pdf->Output('D', 'Informe_Estudiantes.pdf'); // Descargar el PDF
+$pdf->Output('Informe_Estudiantes.pdf', 'D'); // Descargar el PDF
 $conexion->close();
 ?>
