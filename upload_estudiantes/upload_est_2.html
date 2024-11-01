@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../css/menu.css">
+    <link rel="stylesheet" href="../css/upload.css">
+    <title>Curso: 2024 - Requerimientos</title>
+</head>
+<body> 
+    <!-- Encabezado -->
+    <header>
+        <div class="container">
+            <div>
+                <img class="icono" src="../img/perfil.png" alt="Perfil de usuario">
+                <p class="nombre">Estudiante</p>
+            </div>
+            <nav class="nav">
+                <a href="../main-area.html">Área Principal</a>
+                <a href="../cursos_estudiantes.php">Cursos</a>
+                <a href="../php/logout.php">Cerrar Sesión</a>
+            </nav>
+        </div>
+        <div class="decoration"></div>
+    </header>
+
+    <!-- Navegación Secundaria -->
+    <section class="navegador2"> 
+        <h1>2024 - Requerimientos - Sección 1</h1>
+        <nav class="nav2" aria-label="Navegación de curso">
+            <a href="../cursos_estudiantes/curso_2.php">Curso</a>
+            <a href="../participantes_estudiantes/participantes_2.php">Participantes</a>
+            <a href="../calificaciones_estudiantes/calificaciones_estudiantes_2.php">Calificaciones</a>
+            <a href="#">Cargar Tareas</a>
+        </nav>
+    </section>
+
+    <div class="container_2">
+        <main>  
+            <h2>Subir tareas</h2>
+            <form action="../php_estudiantes/upload_est_2.php" method="POST" enctype="multipart/form-data">
+                <div class="upload-section">
+                    <input type="file" name="file" id="file" required>
+                    <div class="upload-box">
+                        <img src="../img/subir.png" alt="Icono de subir">
+                        <p>Arrastra aquí tu archivo</p>
+                    </div>
+                    <label for="file-name">Nombre del archivo:</label>
+                    <input type="text" id="file-name" name="file_name" placeholder="Ingrese el nombre del archivo" required>
+                    <div class="buttons">
+                        <button type="submit" class="upload-btn" onclick="window.location.href='../upload_estudiantes/upload_est_2.html'">Subir</button>
+                        <button type="button" class="cancel-btn" onclick="window.location.href='../cursos_estudiantes.php'">Cancelar</button>
+                    </div>
+                </div>
+            </form>
+        </main>
+    </div><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+
+    <!-- Pie de Página -->
+    <footer>
+        <p>&copy; BrightAcademy</p>
+    </footer>    
+</body>
+</html>
