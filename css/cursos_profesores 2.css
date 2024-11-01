@@ -1,0 +1,163 @@
+:root {
+    --color-primario: #012E40;
+    --color-secundario: #024959;
+    --color-accento: #3C7499;
+    --color-fondo: #f8f8f8;
+    --color-texto: #FFFFFF;
+    --color-borde: #3CA6A6;
+    --color-boton: #5AAEE6;
+    --color-hover: #94C1FF;
+}
+
+/* Sección Navegador */
+.navegador2 {
+    padding: 2em;
+    background-color: var(--color-secundario);
+    text-align: center;
+    color: var(--color-texto);
+}
+
+.navegador2 h1 {
+    color: var(--color-boton);
+    font-size: 2em;
+    margin-bottom: 1em;
+}
+
+.nav2 a {
+    color: var(--color-texto);
+    font-weight: bold;
+    text-decoration: none;
+    margin: 0 15px;
+    padding: 10px 15px;
+    background-color: var(--color-boton);
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+
+.nav2 a:hover {
+    background-color: var(--color-hover);
+}
+
+/* Sección principal */
+.cursos {
+    padding: 2em;
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: var(--color-fondo); /* Fondo de la sección */
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra */
+}
+
+.cursos .cont {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 2em; /* Espacio entre artículos */
+    align-content: center;
+}
+
+.cursos h2 {
+    color: var(--color-primario);
+    font-size: 2em;
+    margin-top: 1.5em;
+    border-bottom: 2px solid var(--color-borde); /* Línea inferior */
+    padding-bottom: 0.5em; /* Espacio debajo del título */
+}
+
+.vista {
+    background-color: var(--color-secundario); /* Fondo del contenedor */
+    border-radius: 8px;
+    padding: 0.5em;
+    max-width: 900px; /* Ancho de cada tarjeta */
+    text-align: center; /* Centrar contenido */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Sombra */
+    transition: transform 0.3s ease;
+}
+
+.vista:hover {
+    transform: translateY(-5px); /* Elevación al pasar el mouse */
+}
+
+.vista .div-1 {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra los elementos dentro de .div-1 */
+    gap: 0.2em; /* Espaciado entre elementos */
+}
+
+.vista img {
+    width: 100px; /* Tamaño de la imagen */
+    height: auto;
+}
+
+.vista h3 {
+    font-size: 1.2em;
+    color: var(--color-texto);
+    margin: 0.5em 0;
+}
+
+/*Tabla*/
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--color-fondo);
+    color: var(--color-primario);
+    border: 1px solid var(--color-borde);
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.tabla th, .tabla td {
+    padding: 12px 15px;
+    border: 1px solid var(--color-borde);
+    text-align: left;
+}
+
+.tabla th {
+    background-color: var(--color-accento);
+    color: var(--color-texto);
+    font-weight: bold;
+}
+
+.tabla tr:nth-child(even) {
+    background-color: #f1f1f1;
+}
+
+.tabla tr:hover {
+    background-color: var(--color-hover);
+    color: var(--color-texto);
+}
+
+.tabla img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+
+/* Footer */
+footer {
+    background-color: var(--color-primario);
+    color: var(--color-texto);
+    text-align: center;
+    padding: 1em 0;
+    font-size: 0.9em;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+    header .container {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .cursos .cont {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navegador2 h1 {
+        font-size: 1.5em;
+    }
+}
